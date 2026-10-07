@@ -28,6 +28,7 @@ const DB = {
       id: "usr-admin-1",
       name: "Dr. Arvind Swaminathan",
       email: "warden@hostel.edu",
+      password: "warden123",
       role: "admin",
       designation: "Chief Hostel Warden",
       phone: "+91 98765 43210"
@@ -36,6 +37,7 @@ const DB = {
       id: "usr-std-1",
       name: "Rahul Sharma",
       email: "rahul.sharma@hostel.edu",
+      password: "student123",
       role: "student",
       roomNo: "204",
       block: "Block A",
@@ -49,6 +51,7 @@ const DB = {
       id: "usr-std-2",
       name: "Priya Patel",
       email: "priya.patel@hostel.edu",
+      password: "student123",
       role: "student",
       roomNo: "112",
       block: "Block B",
@@ -62,6 +65,7 @@ const DB = {
       id: "usr-std-3",
       name: "Vikram Singhania",
       email: "vikram.s@hostel.edu",
+      password: "student123",
       role: "student",
       roomNo: "305",
       block: "Block C",
@@ -274,13 +278,112 @@ app.get('/api/auth/users', (req, res) => {
 });
 
 app.post('/api/auth/login', (req, res) => {
-  const { email, role } = req.body;
-  const user = DB.users.find(u => u.email.toLowerCase() === (email || '').toLowerCase() || (role && u.role === role));
-  if (user) {
-    return res.json({ success: true, user });
+  const { email, password, role } = req.body;
+  
+  // If email or role is provided
+  let user = null;
+  if (email) {
+    user = DB.users.find(u => u.email.toLowerCase() === email.trim().toLowerCase());
+  } else if (role) {
+    user = DB.users.find(u => u.role === role);
   }
-  // Fallback demo user
-  res.status(401).json({ success: false, message: 'Invalid credentials. Please select a demo account.' });
+
+  if (!user) {
+    return res.status(401).json({ 
+      success: false, 
+      message: 'Account not found with this email. Please check your credentials or create a new account.' 
+    });
+  }
+
+  // Check role if specified
+  if (role && user.role !== role) {
+    return res.status(400).json({ 
+      success: false, 
+      message: `Role mismatch: This email is registered as a ${user.role === 'admin' ? 'Warden' : 'Student'}. Please switch to the ${user.role === 'admin' ? 'Warden' : 'Student'} tab.` 
+    });
+  }
+
+  // Check password if provided
+  if (password && user.password && user.password !== password) {
+    return res.status(401).json({ 
+      success: false, 
+      message: 'Incorrect password. (Demo passwords: warden123 for Warden, student123 for Students)' 
+    });
+  }
+
+  return res.json({ success: true, user });
+});
+
+app.post('/api/auth/register', (req, res) => {
+  const { 
+    name, 
+    email, 
+    password, 
+    role, 
+    designation, 
+    staffKey, 
+    rollNo, 
+    block, 
+    floor, 
+    roomNo, 
+    phone, 
+    roommates 
+  } = req.body;
+
+  if (!name || !email || !password || !role) {
+    return res.status(400).json({ success: false, message: 'Name, email, password, and role are required.' });
+  }
+
+  // Check for duplicate email
+  const existing = DB.users.find(u => u.email.toLowerCase() === email.trim().toLowerCase());
+  if (existing) {
+    return res.status(409).json({ success: false, message: 'An account with this email already exists. Please log in.' });
+  }
+
+  let newUser = null;
+
+  if (role === 'admin') {
+    // Warden validation: check staff key if entered
+    if (staffKey && staffKey !== 'WARDEN2026' && staffKey !== 'ADMIN' && staffKey !== 'WARDEN') {
+      return res.status(403).json({ success: false, message: 'Invalid Warden Staff Key. (Default passkey: WARDEN2026)' });
+    }
+
+    newUser = {
+      id: `usr-admin-${Date.now().toString().slice(-4)}`,
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      password,
+      role: 'admin',
+      designation: designation || 'Hostel Warden',
+      phone: phone || '+91 98765 00000'
+    };
+  } else {
+    // Student registration
+    newUser = {
+      id: `usr-std-${Date.now().toString().slice(-4)}`,
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      password,
+      role: 'student',
+      roomNo: roomNo || '101',
+      block: block || 'Block A',
+      floor: floor || 'Floor 1',
+      rollNo: rollNo || `CS23B${Math.floor(100 + Math.random() * 900)}`,
+      phone: phone || '+91 90000 00000',
+      roommates: roommates ? (Array.isArray(roommates) ? roommates : roommates.split(',').map(r => r.trim())) : ['Roommate 1'],
+      greenScore: 82
+    };
+
+    DB.institution.totalStudents += 1;
+  }
+
+  DB.users.push(newUser);
+
+  res.status(201).json({ 
+    success: true, 
+    message: `${role === 'admin' ? 'Warden' : 'Student'} registered successfully!`, 
+    user: newUser 
+  });
 });
 
 // ==========================================

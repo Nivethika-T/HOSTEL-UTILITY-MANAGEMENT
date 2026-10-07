@@ -17,7 +17,7 @@ import {
 
 export const Navbar = ({ activeRoleTab, setActiveRoleTab }) => {
   const { theme, toggleTheme, isDark } = useTheme();
-  const { currentUser, switchUser, demoUsers, isAdmin } = useAuth();
+  const { currentUser, switchUser, demoUsers, isAdmin, logout } = useAuth();
   const [showUserDropdown, setShowUserDropdown] = useState(false);
 
   return (
@@ -113,6 +113,15 @@ export const Navbar = ({ activeRoleTab, setActiveRoleTab }) => {
                       </div>
                     </button>
                   ))}
+                  <div className="pt-1.5 mt-1 border-t border-slate-100 dark:border-slate-700">
+                    <button
+                      onClick={() => logout()}
+                      className="w-full text-left px-3 py-2 text-xs flex items-center space-x-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition font-semibold"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>Sign Out / Switch Account</span>
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -129,6 +138,16 @@ export const Navbar = ({ activeRoleTab, setActiveRoleTab }) => {
               ) : (
                 <Moon className="w-4 h-4 text-indigo-600" />
               )}
+            </button>
+
+            {/* Dedicated Sign Out Button */}
+            <button
+              onClick={() => logout()}
+              className="p-2 rounded-lg text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 transition-colors flex items-center space-x-1"
+              title="Sign Out to Login / Register page"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="text-xs font-bold hidden md:inline">Sign Out</span>
             </button>
           </div>
 

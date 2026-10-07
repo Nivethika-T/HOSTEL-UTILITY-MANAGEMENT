@@ -25,6 +25,7 @@ import { StudentAnnouncements } from './components/student/StudentAnnouncements'
 import { StudentGreenScore } from './components/student/StudentGreenScore';
 import { StudentLeaveOuting } from './components/student/StudentLeaveOuting';
 import { StudentFeedback } from './components/student/StudentFeedback';
+import { LoginRegister } from './components/auth/LoginRegister';
 
 // Lucide Icons
 import {
@@ -270,6 +271,10 @@ const MainApp = () => {
   const activeTabsList = isAdmin ? adminTabs : studentTabs;
   const currentTab = isAdmin ? adminTab : studentTab;
   const setCurrentTab = isAdmin ? setAdminTab : setStudentTab;
+
+  if (!currentUser) {
+    return <LoginRegister />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-200 flex flex-col font-sans">
