@@ -1,0 +1,25 @@
+{
+  "name": "smart-hostel-optimizer",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "cd client && npm run build",
+    "client": "cd client && npm run dev",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "smart-hostel",
+    "utility-optimization",
+    "predictive-resource-management",
+    "iot-telemetry",
+    "anomaly-detection"
+  ],
+  "author": "Apex AI Team",
+  "license": "MIT",
+  "description": "Smart Hostel Utility Optimization and Predictive Resource Management Dashboard for High-Density Institutions",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  }
+}
